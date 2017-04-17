@@ -1,6 +1,6 @@
 {
   "name": "express-outbound",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "An app/router middleware wrapper for expressjs that continues the middleware chain through the response.",
   "main": "lib/outbound.js",
   "directories": {
