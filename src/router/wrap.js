@@ -2,9 +2,18 @@ const { flatten } = require('fun-util');
 const apply = require('./apply');
 
 const makeMiddleware = fn => (request, response, next) => {
-  fn(request, response, apply.apply(response, next));
+  fn(request, response, apply(response, next));
 };
 
+/**
+ * Determines when/how to wrap the supplied middleware(s)
+ * with an enhanced 'next' callback.
+ *
+ * @param {Function} express
+ * 
+ * @return {App}
+ * @private
+ */
 const wrap = fn => (router, ...args) => {
   const middlewares = flatten(args);
   const chain = middlewares
@@ -16,6 +25,4 @@ const wrap = fn => (router, ...args) => {
   return fn.apply(router, chain);
 };
 
-module.exports = {
-  wrap
-};
+module.exports = wrap;

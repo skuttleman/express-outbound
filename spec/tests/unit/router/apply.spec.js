@@ -1,17 +1,20 @@
-const apply = require('../../../../src/router/apply');
-const handle = require('../../../../src/router/handle');
+const proxyquire = require('proxyquire');
 
 describe('apply', () => {
-  let next;
+  let apply, next, proxy;
   beforeEach(() => {
-    spyOn(handle, 'handle');
+    proxy = {
+      './handle': jasmine.createSpy('handle')
+    };
+    apply = proxyquire('../../../../src/router/apply', proxy);
+
     next = jasmine.createSpy('nextSpy');
   });
 
   it('calls next', () => {
-    apply.apply('response', next)('chain');
+    apply('response', next)('chain');
 
-    expect(handle.handle).not.toHaveBeenCalled();
+    expect(proxy['./handle']).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith('chain');
   });
@@ -19,9 +22,9 @@ describe('apply', () => {
   it('handles the input when it is a function', () => {
     const chain = () => null;
 
-    apply.apply('response', next)(chain);
+    apply('response', next)(chain);
 
-    expect(handle.handle).toHaveBeenCalledWith(chain, 'response');
+    expect(proxy['./handle']).toHaveBeenCalledWith(chain, 'response');
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith();
   });

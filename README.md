@@ -11,7 +11,7 @@
 
 ## 1\. Synopsis
 
-An extension for [ExpressJS](http://expressjs.com/) that continues the middleware chain through the response proccess allowing you to track or manipulate data on its way out. Do this by passing a function to `next`.
+An extension for [ExpressJS](http://expressjs.com/) that continues the middleware chain through the response proccess allowing you to process or manipulate responses on their way out.
 
 <a name="installation"></a>
 
@@ -20,32 +20,38 @@ An extension for [ExpressJS](http://expressjs.com/) that continues the middlewar
 Install with npm as a dependency to your project.
 
 ```bash
-$ npm i --save express-outbound
+$ npm install --save express-outbound
 ```
 
 <a name="usage"></a>
 
 ## 3\. How To Use
 
-Passing a function to next will inject a middleware that runs after calling `response.send` or `response.json`. The function takes two arguments: (1) The data being sent in the response, and (2) a callback to continue responding.
+Passing a callback function to `next` will inject a middleware that runs after calling `response.send` or `response.json` before the response is sent. The callback takes the data being sent in the response. Within the callback, you **must** use `response.send` or `response.json` to continue processing the response.
 
 ### Basic Example
 
 Here is a simple inbound/outbound logging middleware.
 
 ```js
-const app = require('express')();
-const { use } = require('express-outbound');
+const express = require('express');
+const outbound = require('express-outbound');
+// const app = express();
+const app = outbound(express);
 
-use(app, (request, response, next) => {
+app.use((request, response, next) => {
   console.log('request received');
-  next((data, send) => {
+  next(data => {
     console.log('responding with:', data);
-    send(data);
+    if (iAm instanceof TeaPot) {
+      response.status(418);
+    }
+    response.send(data);
   });
 });
 
 app.get('/', (request, response) => {
+  console.log('handling request');
   response.send('Hello, world');
 });
 
@@ -63,23 +69,39 @@ Any racked middleware will run in the opposite order during the response process
 ```
 
 ```js
-const app = require('express')();
-const { use, get } = require('express-outbound');
+const express = require('express');
+const outbound = require('express-outbound');
+const app = outbound(express);
+// const router = express.Router();
+const router = outbound.Router(express);
 
-use(app, (request, response, next) => {
+router.use((request, response, next) => {
+  next(data => {
+    console.log('express-outbound works with routers, too');
+    response.send(data);
+  });
+});
+
+router.post('/', (request, response, next) => {
+  response.send('you posted something');
+});
+
+app.use('/some-route', router);
+
+app.use((request, response, next) => {
   request.loggedIn = isLoggedIn(request);
-  next((data, send) => {
-    const enriched = enrichPayload(data);
-    doSomethingAsynchronously(enriched).then(() => {
-      send(enriched);
+  next(data => {
+    const enrichedData = enrichPayload(data);
+    doSomethingAsynchronouslyWith(enrichedData).then(() => {
+      response.send(enrichedData);
     });
   });
 });
 
-get(app, '/', (request, response, next) => {
+app.get('/', (request, response, next) => {
   const greeting = request.loggedIn ? 'familiar face' : 'stranger';
-  next((data, send) => {
-    send({
+  next(data => {
+    response.json({
       payload: `${data.payload}, ${greeting}`
     });
   });
@@ -92,39 +114,25 @@ app.get('/', (request, response) => {
 app.listen(8080);
 ```
 
-### Enhancing Express
-
-If you prefer, you can simplify your code by invoking the library withthe app or router.
-
-```js
-const app = require('express')();
-require('express-outbound')(app);
-
-app.use((request, response, next) => {
-  console.log('inbound');
-  next((data, send) => {
-    console.log('outbound');
-    send(data);
-  });
-});
-
-app.listen(8080);
-```
-
 <a name="testing"></a>
 
 ## 4\. Testing
 
-Tests are written using [jasmine](https://jasmine.github.io/).
+Tests are written using [jasmine](https://jasmine.github.io/). All API tests currently run against [Express 4.15.2](https://github.com/expressjs/express/tree/d43b074f0b3b56a91f240e62798c932ba104b79a).
 
 ```bash
-$ npm i
+$ npm install
 $ npm test
 ```
 
 <a name="change-notes"></a>
 
 ### 5\. Change Notes
+
+#### 1.0.0
+  -- Change API to create express 'app' and 'router' instead of passing in or mutating existing ones
+  -- Simplify callback passed to 'next' to remove redundant callback
+  -- Improve documentation
 
 #### 0.1.0
   -- Initial release

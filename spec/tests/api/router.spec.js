@@ -26,9 +26,9 @@ describe('Router API', () => {
 
 const runApp = (apiSpy, config) => startApp(({ app, router }) => {
   router.use((request, response, next) => {
-    next((data, send) => {
+    next(data => {
       apiSpy('router');
-      send(data);
+      response.send(data);
     });
   });
 
@@ -38,9 +38,9 @@ const runApp = (apiSpy, config) => startApp(({ app, router }) => {
   })
 
   app.use((request, response, next) => {
-    next((data, send) => {
+    next(data => {
       apiSpy('app');
-      send(data);
+      response.send(data);
     });
   });
 

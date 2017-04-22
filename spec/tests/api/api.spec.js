@@ -47,15 +47,15 @@ const runApp = (apiSpy, config) => startApp(({ app }) => {
     next();
   }, (request, response, next) => {
     apiSpy('second');
-    next((data, send) => {
+    next(data => {
       apiSpy('fifth');
-      send(data);
+      response.send(data);
     });
   }, (request, response, next) => {
     apiSpy('third');
-    next((data, send) => {
+    next(data => {
       apiSpy('fourth');
-      Promise.resolve().then(() => send({ ...data, extra: 'stuff' }));
+      Promise.resolve().then(() => response.send({ ...data, extra: 'stuff' }));
     });
   }, (request, response) => {
     response.send({ some: 'response' });

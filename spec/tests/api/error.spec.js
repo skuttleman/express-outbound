@@ -24,9 +24,9 @@ describe('Error API', () => {
 
 const runApp = (apiSpy, config) => startApp(({ app }) => {
   app.use((request, response, next) => {
-    next((data, send) => {
+    next(data => {
       apiSpy('this still happens');
-      send(data);
+      response.send(data);
     });
   });
 

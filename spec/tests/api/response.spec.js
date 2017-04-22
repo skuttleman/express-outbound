@@ -23,8 +23,8 @@ describe('Library API', () => {
 
 const runApp = config => startApp(({ app }) => {
   app.use((request, response, next) => {
-    next((data, send) => {
-      send({ ...data, someData: 'some data' });
+    next(data => {
+      response.send({ ...data, someData: 'some data' });
     });
   });
 
@@ -35,8 +35,8 @@ const runApp = config => startApp(({ app }) => {
   });
 
   app.get('/', (request, response, next) => {
-    next((data, send) => {
-      send({ ...data, otherData: 'other data' });
+    next(data => {
+      response.send({ ...data, otherData: 'other data' });
     });
   });
 

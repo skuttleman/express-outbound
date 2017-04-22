@@ -16,13 +16,14 @@
     "babel-preset-stage-1": "^6.16.0",
     "babel-register": "^6.18.0",
     "del": "^2.2.2",
-    "express": "^4.15.2",
+    "express": "4.15.2",
     "glob": "^7.1.1",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-jasmine": "^2.4.2",
     "jasmine": "^2.5.2",
-    "jasmine-spec-reporter": "^2.7.0"
+    "jasmine-spec-reporter": "^2.7.0",
+    "proxyquire": "^1.7.11"
   },
   "scripts": {
     "prepublish": "npm test && ./node_modules/gulp/bin/gulp.js transpile:all",
