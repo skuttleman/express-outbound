@@ -1,13 +1,11 @@
 const proxyquire = require('proxyquire');
-// const apply = require('../../../../src/router/apply');
-// const wrap = require('../../../../src/router/wrap');
 
 describe('wrap', () => {
   let apply, fn, proxy, wrap;
   beforeEach(() => {
     fn = jasmine.createSpy('fn spy').and.returnValue('fn spy');
     proxy = {
-      './apply': jasmine.createSpy('apply').and.returnValue('applied')
+      './handler': jasmine.createSpy('handler').and.returnValue('applied')
     };
     wrap = proxyquire('../../../../src/router/wrap', proxy);
   });
@@ -61,7 +59,7 @@ describe('wrap', () => {
     wrap(fn)('router', middleware);
     fn.calls.argsFor(0)[0]('request', 'response', 'next');
 
-    expect(proxy['./apply']).toHaveBeenCalledWith('response', 'next');
+    expect(proxy['./handler']).toHaveBeenCalledWith('response', 'next');
     expect(spy).toHaveBeenCalledWith('request', 'response', 'applied');
   });
 });

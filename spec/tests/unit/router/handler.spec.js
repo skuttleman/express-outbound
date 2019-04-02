@@ -1,17 +1,27 @@
-const handle = require('../../../../src/router/handle');
+const handler = require('../../../../src/router/handler');
 
-describe('handle', () => {
-  let chain, response;
+describe('handler', () => {
+  let chain, response, next;
   beforeEach(() => {
     chain = jasmine.createSpy('chainSpy').and.returnValue('chain');
     response = jasmine.createSpyObj(['json', 'send']);
+    next = jasmine.createSpy('nextSpy')
+  });
+
+  describe('when chain is not a function', () => {
+    it('calls next', () => {
+      handler('response', next)('chain');
+
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith('chain');
+    });
   });
 
   describe('.json', () => {
     it('chains the function', () => {
       const { json, send } = response;
 
-      handle(chain, response);
+      handler(response, () => null)(chain);
       expect(response.json).not.toEqual(json);
 
       const result = response.json('data');
@@ -28,7 +38,7 @@ describe('handle', () => {
     it('chains the function', () => {
       const { json, send } = response;
 
-      handle(chain, response);
+      handler(response, () => null)(chain);
       expect(response.send).not.toEqual(send);
 
       const result = response.send('data');

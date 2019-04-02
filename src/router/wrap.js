@@ -1,8 +1,8 @@
 const { flatten } = require('fun-util');
-const apply = require('./apply');
+const handler = require('./handler');
 
 const makeMiddleware = fn => (request, response, next) => {
-  fn(request, response, apply(response, next));
+  fn(request, response, handler(response, next));
 };
 
 /**
